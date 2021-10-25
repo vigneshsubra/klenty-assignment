@@ -1,6 +1,7 @@
 const HttpError = require('../models/http-errors');
 
 const Discussion = require('../models/discussion');
+const { json } = require('body-parser');
 
 const getDiscussionById = async (req, res, next) => {
 
@@ -21,8 +22,8 @@ const getDiscussionById = async (req, res, next) => {
   if (!discussion) {
     return next(new HttpError('Could not find a discussion with the given id.', 404));
   }
-
-  res.json({ discussion: discussion.toObject({ getters: true }) });
+  const discussionStr = JSON.parse(JSON.stringify(discussion));
+  res.json({ discussion: discussionStr });
 };
 
 const addReply = async (req, res, next) => {
@@ -47,9 +48,9 @@ const addReply = async (req, res, next) => {
 
   discussion.replies.unshift(newReply);
 
-  try{
+  try {
     await discussion.save();
-  } catch (err){
+  } catch (err) {
     const error = new HttpError(
       'Something went wrong, could not add reply.', 500
     );
